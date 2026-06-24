@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Un mapa para el diseño instruccional - Edición Especial</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts para tipografía editorial premium -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Space+Grotesk:wght@400;700&display=swap" rel="stylesheet">
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            serif: ['"Playfair Display"', 'serif'],
+            mono: ['"Space Grotesk"', 'monospace'],
+          },
+          colors: {
+            brand: {
+              red: '#E53E3E',
+              dark: '#111111',
+              cream: '#FDFBF7',
+              creamDark: '#F7F4EB',
+              blue: '#3182CE',
+              pastelBlue: '#EBF8FF',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Estilo de la cuadrícula de puntos inspirado en la portada */
+    .dot-grid {
+      background-image: radial-gradient(#e2e8f0 1.5px, transparent 1.5px);
+      background-size: 24px 24px;
+    }
+    
+    /* Variaciones de tema para la lectura */
+    .theme-warm {
+      background-color: #FDFBF7;
+      color: #1A202C;
+    }
+    .theme-light {
+      background-color: #FFFFFF;
+      color: #2D3748;
+    }
+    .theme-dark {
+      background-color: #0F172A;
+      color: #E2E8F0;
+    }
+
+    /* Transición suave */
+    .smooth-transition {
+      transition: all 0.3s ease;
+    }
+
+    /* Efecto de letra capitular (Drop Cap) */
+    .drop-cap::first-letter {
+      font-family: 'Playfair Display', serif;
+      font-size: 4.5rem;
+      font-weight: 700;
+      float: left;
+      line-height: 0.85;
+      padding-right: 12px;
+      margin-top: 4px;
+      color: #E53E3E;
+    }
+  </style>
+</head>
+<body class="theme-warm font-sans smooth-transition relative selection:bg-brand-red/10 selection:text-brand-red">
+
+  <!-- BARRA DE CONTROL DE LECTURA Y PROGRESO (FLOTANTE) -->
+  <header class="sticky top-0 z-50 w-full bg-opacity-90 backdrop-blur-md border-b border-gray-200/60 transition-colors duration-300 id-navbar" id="mainHeader">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <span class="font-mono text-xs font-bold uppercase tracking-widest text-brand-red bg-brand-red/10 px-2 py-1 rounded">Editorial</span>
+        <span class="hidden md:inline font-semibold text-sm tracking-tight text-gray-700 header-text">Diseño Instruccional Activo</span>
+      </div>
+
+      <!-- Barra de progreso de lectura central -->
+      <div class="hidden lg:flex flex-1 mx-12 items-center space-x-2">
+        <span class="text-xs font-mono text-gray-400">Progreso:</span>
+        <div class="w-full bg-gray-200 h-1.5 rounded-full overflow-hidden">
+          <div id="readingProgress" class="bg-brand-red h-full w-0 smooth-transition"></div>
+        </div>
+        <span id="progressPercentage" class="text-xs font-mono text-gray-500 w-8">0%</span>
+      </div>
+
+      <!-- Ajustes de Lectura -->
+      <div class="flex items-center space-x-4">
+        <!-- Selector de Tamaño de Texto -->
+        <div class="flex items-center space-x-1 border border-gray-200 rounded-lg p-1 bg-white/50 backdrop-blur">
+          <button onclick="changeFontSize(-1)" class="p-1.5 text-xs text-gray-600 hover:bg-gray-100 rounded" title="Reducir fuente">A-</button>
+          <span class="text-xs font-mono px-2 text-gray-600" id="fontSizeLabel">100%</span>
+          <button onclick="changeFontSize(1)" class="p-1.5 text-xs text-gray-600 hover:bg-gray-100 rounded" title="Aumentar fuente">A+</button>
+        </div>
+
+        <!-- Selector de Tema de fondo -->
+        <div class="flex items-center space-x-1 border border-gray-200 rounded-lg p-1 bg-white/50 backdrop-blur">
+          <button onclick="setTheme('warm')" class="w-6 h-6 rounded-full bg-[#FDFBF7] border border-orange-200" title="Modo Cálido"></button>
+          <button onclick="setTheme('light')" class="w-6 h-6 rounded-full bg-white border border-gray-300" title="Modo Claro"></button>
+          <button onclick="setTheme('dark')" class="w-6 h-6 rounded-full bg-[#0F172A] border border-slate-700" title="Modo Noche"></button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- PORTADA DE LA REVISTA (Estilo e Inspiración Cover) -->
+  <section class="min-h-screen dot-grid flex flex-col justify-between py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden border-b-8 border-brand-red">
+    <!-- Ondas decorativas fluidas estilo la portada original -->
+    <div class="absolute inset-x-0 bottom-0 pointer-events-none select-none z-0">
+      <svg viewBox="0 0 1440 320" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-auto">
+        <path fill="#FEEBC8" fill-opacity="0.5" d="M0,160C120,181.3,240,203,360,192C480,181,600,139,720,128C840,117,960,139,1080,149.3C1200,160,1320,160,1380,160L1440,160L1440,320L1380,320C1320,320,1200,320,1080,320C960,320,840,320,720,320C600,320,480,320,360,320C240,320,120,320,0,320Z"></path>
+        <path fill="#E53E3E" d="M0,224C120,202.7,240,181,360,186.7C480,192,600,224,720,234.7C840,245,960,235,1080,213.3C1200,192,1320,160,1380,144L1440,128L1440,320L1380,320C1320,320,1200,320,1080,320C960,320,840,320,720,320C600,320,480,320,360,320C240,320,120,320,0,320Z"></path>
+      </svg>
+    </div>
+
+    <!-- Contenido Cabecera de Portada -->
+    <div class="max-w-4xl mx-auto w-full text-center mt-8 z-10">
+      <div class="inline-block border-2 border-brand-red px-4 py-1.5 mb-8 rounded-full">
+        <p class="font-mono text-xs uppercase tracking-[0.25em] text-brand-red font-bold">EDICIÓN INTERACTIVA DE APRENDIZAJE</p>
+      </div>
+
+      <h1 class="font-sans font-extrabold tracking-tight leading-none text-gray-900 text-5xl sm:text-7xl lg:text-8xl">
+        <span class="text-brand-red block mb-2 sm:mb-4">Reconstruyendo</span>
+        <span class="text-brand-dark block select-all">El Diseño Instruccional</span>
+      </h1>
+
+      <p class="mt-8 font-serif text-xl sm:text-2xl text-gray-700 italic max-w-2xl mx-auto leading-relaxed">
+        "Por qué los modelos no son una lista — y qué cambia cuando de verdad lo entiendes."
+      </p>
+
+      <div class="mt-12 flex justify-center items-center space-x-4">
+        <div class="h-px w-12 bg-brand-red"></div>
+        <p class="font-mono text-sm uppercase tracking-widest text-brand-dark">Lectura de 12 minutos</p>
+        <div class="h-px w-12 bg-brand-red"></div>
+      </div>
+    </div>
+
+    <!-- Ilustración Central Portada Interactiva (Conexiones cerebrales estilizadas) -->
+    <div class="max-w-md mx-auto w-full z-10 flex flex-col items-center mt-6">
+      <div class="relative w-48 h-48 sm:w-64 sm:h-64 flex items-center justify-center">
+        <!-- SVG interactivo con animaciones suaves -->
+        <svg class="w-full h-full animate-[spin_40s_linear_infinite]" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="100" cy="100" r="80" stroke="#E2E8F0" stroke-width="2" stroke-dasharray="6 6"/>
+          <circle cx="100" cy="100" r="50" stroke="#E53E3E" stroke-width="1.5" stroke-opacity="0.3"/>
+          
+          <!-- Elementos flotantes simulando datos del libro -->
+          <circle cx="100" cy="20" r="12" fill="#E53E3E" class="animate-bounce" />
+          <circle cx="40" cy="140" r="8" fill="#3182CE" />
+          <circle cx="160" cy="140" r="10" fill="#ED8936" />
+          
+          <!-- Líneas de red conectadas -->
+          <line x1="100" y1="20" x2="40" y2="140" stroke="#CBD5E1" stroke-width="2" />
+          <line x1="100" y1="20" x2="160" y2="140" stroke="#CBD5E1" stroke-width="2" />
+          <line x1="40" y1="140" x2="160" y2="140" stroke="#CBD5E1" stroke-width="1" />
+        </svg>
+        <div class="absolute inset-0 flex items-center justify-center">
+          <div class="bg-brand-cream/90 backdrop-blur w-24 h-24 rounded-full flex flex-col items-center justify-center shadow-lg border border-brand-red/20">
+            <span class="text-xs font-mono font-bold text-brand-red">MAPA DE</span>
+            <span class="text-xs font-mono font-bold text-brand-dark">MODELOS</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Autor y Botón para iniciar lectura -->
+    <div class="max-w-4xl mx-auto w-full text-center z-10 mt-8 mb-6">
+      <p class="font-mono text-sm tracking-wide text-brand-dark font-medium">POR DESIGN LABS & CONNOR HAMILTON</p>
+      
+      <button onclick="scrollToContent()" class="mt-8 inline-flex items-center space-x-2 bg-brand-dark text-white px-8 py-4 rounded-full font-mono text-sm uppercase tracking-wider hover:bg-brand-red hover:shadow-lg transition-all transform hover:-translate-y-0.5 duration-300">
+        <span>Abrir Primer Capítulo</span>
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
+      </button>
+    </div>
+  </section>
+
+  <!-- CONTENIDO DE LA REVISTA -->
+  <main id="mainContent" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
+      
+      <!-- COLUMNA IZQUIERDA: MENÚ FLOTANTE/INDICE DE ARTÍCULO -->
+      <aside class="lg:col-span-3 sticky top-24 hidden lg:block border-l-2 border-gray-150 pl-6 space-y-8 py-2">
+        <div>
+          <h4 class="font-mono text-xs uppercase tracking-widest text-brand-red font-bold mb-4">Índice Editorial</h4>
+          <nav class="space-y-4">
+            <a href="#intro" class="block text-sm font-medium text-gray-500 hover:text-brand-red nav-link active transition-colors">1. Abres Google</a>
+            <a href="#cap2" class="block text-sm font-medium text-gray-500 hover:text-brand-red nav-link transition-colors">2. El mapa equivocado</a>
+            <a href="#cap3" class="block text-sm font-medium text-gray-500 hover:text-brand-red nav-link transition-colors">3. El GPS (Gestión)</a>
+            <a href="#cap4" class="block text-sm font-medium text-gray-500 hover:text-brand-red nav-link transition-colors">4. El Vehículo (Táctica)</a>
+            <a href="#cap5" class="block text-sm font-medium text-gray-500 hover:text-brand-red nav-link transition-colors">5. El Destino (Taxonomía)</a>
+            <a href="#cap6" class="block text-sm font-medium text-gray-500 hover:text-brand-red nav-link transition-colors">6. Señales (Neurociencia)</a>
+            <a href="#cap7" class="block text-sm font-medium text-gray-500 hover:text-brand-red nav-link transition-colors">7. Capas en Acción</a>
+            <a href="#conclusion" class="block text-sm font-medium text-gray-500 hover:text-brand-red nav-link transition-colors">8. Tu Nuevo Dibujo</a>
+          </nav>
+        </div>
+
+        <div class="pt-6 border-t border-gray-100">
+          <h5 class="text-xs font-mono font-bold text-gray-400 uppercase tracking-widest mb-3">Enfoque del Capítulo</h5>
+          <div class="bg-brand-creamDark p-4 rounded-xl border border-yellow-200/40">
+            <p id="asideContext" class="text-xs text-gray-600 leading-relaxed italic">
+              "No busques qué modelo memorizar; busca entender qué parte del problema resuelve cada uno."
+            </p>
+          </div>
+        </div>
+      </aside>
+
+      <!-- COLUMNA PRINCIPAL DE LECTURA -->
+      <div id="readable-area" class="lg:col-span-9 space-y-16 sm:space-y-24 text-lg leading-relaxed max-w-3xl mx-auto">
+        
+        <!-- INTRODUCCIÓN -->
+        <article id="intro" class="section-block scroll-mt-24 space-y-6">
+          <div class="flex items-center space-x-2">
+            <span class="w-1.5 h-1.5 bg-brand-red rounded-full"></span>
+            <span class="font-mono text-xs uppercase tracking-widest text-brand-red font-semibold">Introducción</span>
+          </div>
+          
+          <h2 class="font-sans font-bold text-3xl sm:text-4xl text-gray-900 tracking-tight">El dilema del buscador de respuestas</h2>
+          
+          <div class="drop-cap text-gray-700 space-y-4">
+            <p>
+              Abres Google. Escribes "modelos de diseño instruccional" y le das Enter. Aparece la lista de siempre: ADDIE, Gagné, Bloom, Dick y Carey, Kemp, ASSURE, Merrill. Todos juntos, todos al mismo nivel, como si fueran sabores de helado de una vitrina.
+            </p>
+            <p>
+              Eliges el que más te guste. Lo estudias. Memorizas las fases. Practicas con un curso pequeño. Y entonces llega la primera pregunta que nadie responde bien: <strong class="text-brand-red">¿uso ADDIE o uso Gagné?</strong>
+            </p>
+            <p>
+              Buscas más. Encuentras más listas. Las listas no contestan la pregunta, solo la repiten con otro orden. Tomas un curso certificado. El instructor te explica ADDIE con diapositivas pulcras. Te explica Bloom con un triángulo de colores. Te explica Gagné con una tabla de nueve filas.
+            </p>
+            <p class="font-serif italic text-xl border-l-4 border-brand-red pl-4 text-gray-800 my-8 py-1 bg-brand-creamDark/50">
+              Nunca te explican cómo se relacionan entre sí.
+            </p>
+            <p>
+              Asumes que es porque no se relacionan. Que cada uno vive en su propia caja, y tú decides cuál abrir según el proyecto. Diseñas un curso siguiendo ADDIE al pie de la letra. Análisis impecable. Diseño documentado. Desarrollo a tiempo. Implementación sin contratiempos. Evaluación con encuesta de satisfacción.
+            </p>
+            <p>
+              El curso se ve profesional. Se siente terminado. Y aun así, hay algo que no logras nombrar. Una sensación de que falta una pieza, aunque cumpliste cada paso del modelo que se supone que debías seguir.
+            </p>
+            <p>
+              Crees que es experiencia. Que con más proyectos, esa sensación va a desaparecer. Pero no desaparece. Empiezas a creer que la confusión es tuya; que si hubieras estudiado más, ya tendrías esto claro. <strong>¿Y si el problema no es cuánto sabes?</strong>
+            </p>
+          </div>
+        </article>
+
+        <!-- CAPÍTULO 2 -->
+        <article id="cap2" class="section-block scroll-mt-24 space-y-6">
+          <div class="flex items-center space-x-2">
+            <span class="w-1.5 h-1.5 bg-brand-red rounded-full"></span>
+            <span class="font-mono text-xs uppercase tracking-widest text-brand-red font-semibold">Capítulo 2</span>
+          </div>
+          
+          <h2 class="font-sans font-bold text-3xl sm:text-4xl text-gray-900 tracking-tight">El mapa que te dieron está mal hecho</h2>
+          
+          <div class="text-gray-700 space-y-4">
+            <p class="text-lg">
+              Voy a decirte algo que ningún curso introductorio te dijo: <strong class="text-brand-red">ADDIE y Gagné no compiten entre sí porque no hacen lo mismo.</strong>
+            </p>
+            <p>
+              Es como si alguien te entregara, en la misma caja, un GPS, un coche y un mapa de carreteras — y te dijera <em>"elige uno para llegar a tu destino."</em> No puedes elegir uno. Necesitas los tres. Cada uno resuelve un problema distinto del mismo viaje.
+            </p>
+            
+            <!-- TARJETA INTERACTIVA DE ANALOGÍA -->
+            <div class="my-8 bg-brand-creamDark border border-gray-200 rounded-2xl p-6 sm:p-8 relative overflow-hidden">
+              <div class="absolute top-0 right-0 w-24 h-24 bg-brand-red/5 rounded-full -mr-10 -mt-10"></div>
+              <h4 class="font-mono text-xs uppercase tracking-widest text-brand-red font-bold mb-4">La analogía del viaje</h4>
+              
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                  <div class="text-brand-red font-mono text-lg font-bold mb-1">El GPS</div>
+                  <p class="text-xs text-gray-600">Organiza la ruta y estima el tiempo, pero no conduce el automóvil.</p>
+                </div>
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                  <div class="text-brand-red font-mono text-lg font-bold mb-1">El Vehículo</div>
+                  <p class="text-xs text-gray-600">Es la máquina que se mueve físicamente por la carretera en tiempo real.</p>
+                </div>
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                  <div class="text-brand-red font-mono text-lg font-bold mb-1">El Mapa</div>
+                  <p class="text-xs text-gray-600">Señala de forma absoluta cuál es el destino idóneo y su elevación.</p>
+                </div>
+              </div>
+            </div>
+
+            <p>
+              Pero antes de llegar ahí, hablemos de lo que ocurrió en un caso de negocio real. Una empresa de logística contrató a un equipo para un curso de manejo de quejas de clientes. El equipo hizo todo "bien". Siguieron ADDIE de principio a fin. El Análisis identificó la brecha de habilidad. El Diseño documentó cada objetivo con su evaluación. El Desarrollo respetó el cronograma. La Implementación llegó a tiempo a 340 empleados.
+            </p>
+            <p>
+              La Evaluación arrojó números increíbles: 98% de finalización y 4.7 sobre 5 en satisfacción. Seis meses después, revisaron las métricas de quejas resueltas en el primer contacto. <strong>No habían cambiado absolutamente nada.</strong>
+            </p>
+            <p class="font-bold text-brand-red text-xl">¿Qué falló aquí?</p>
+            <p>
+              El equipo gestionó el proyecto a la perfección. Siguieron el GPS sin saltarse un giro. Pero nunca revisaron si subieron al vehículo correcto (si la actividad movía al empleado a practicar en un contexto estresante de queja real, o si solo le pedía leer un manual y responder un quiz de opción múltiple).
+            </p>
+            <p>
+              Y nunca confirmaron si el mapa señalaba el destino idóneo (si el nivel cognitivo requerido por el negocio era el mismo que se pedía en el papel). Gestionaron el proyecto; no diseñaron el aprendizaje real.
+            </p>
+          </div>
+        </article>
+
+        <!-- CAPÍTULO 3 -->
+        <article id="cap3" class="section-block scroll-mt-24 space-y-6">
+          <div class="flex items-center space-x-2">
+            <span class="w-1.5 h-1.5 bg-brand-red rounded-full"></span>
+            <span class="font-mono text-xs uppercase tracking-widest text-brand-red font-semibold">Capítulo 3</span>
+          </div>
+          
+          <h2 class="font-sans font-bold text-3xl sm:text-4xl text-gray-900 tracking-tight">El GPS: Cómo gestionas el viaje</h2>
+          
+          <div class="text-gray-700 space-y-4">
+            <p>
+              <strong>Esta capa se llama Gestión.</strong> Y vale la pena que se quede contigo, porque es el nombre exacto de lo que haces, no de su pedagogía.
+            </p>
+            <p>
+              Imagina que te piden diseñar un curso desde cero mañana por la mañana. Lo primero que necesitas no es una teoría de aprendizaje. Es un proceso de gestión. Algo que te diga qué hacer hoy, qué hacer la próxima semana y en qué orden secuencial para no perderte.
+            </p>
+            <p>
+              Eso —gestión, no pedagogía— es lo que resuelven <strong>ADDIE, Dick y Carey, Kemp y ASSURE.</strong> Son modelos de gestión de proyectos vestidos de pedagogía.
+            </p>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 my-8">
+              <div class="border-l-4 border-brand-red bg-brand-creamDark p-5 rounded-r-xl">
+                <span class="text-xs font-mono font-bold text-brand-red uppercase">ADDIE</span>
+                <p class="text-sm text-gray-700 mt-1">Lineal, robusto y predecible. Es el más estructurado para la planeación industrial o corporativa de largo aliento.</p>
+              </div>
+              <div class="border-l-4 border-brand-red bg-brand-creamDark p-5 rounded-r-xl">
+                <span class="text-xs font-mono font-bold text-brand-red uppercase">Dick y Carey</span>
+                <p class="text-sm text-gray-700 mt-1">Obsesionado con la alineación absoluta entre los objetivos, las estrategias y los instrumentos de evaluación.</p>
+              </div>
+              <div class="border-l-4 border-brand-red bg-brand-creamDark p-5 rounded-r-xl">
+                <span class="text-xs font-mono font-bold text-brand-red uppercase">Kemp</span>
+                <p class="text-sm text-gray-700 mt-1">Rompe la linealidad de fases y propone elementos interconectados dinámicamente que puedes trabajar en cualquier orden.</p>
+              </div>
+              <div class="border-l-4 border-brand-red bg-brand-creamDark p-5 rounded-r-xl">
+                <span class="text-xs font-mono font-bold text-brand-red uppercase">ASSURE</span>
+                <p class="text-sm text-gray-700 mt-1">Diseñado con un enfoque sólido en la integración e implementación de tecnologías y medios multimedia en entornos de clase.</p>
+              </div>
+            </div>
+
+            <p>
+              ¿Por qué no cuentan estos como la capa que diseña el aprendizaje propiamente? Porque hay una diferencia sustancial entre <strong>decirte que algo debe existir</strong> y <strong>decirte cómo construirlo por dentro.</strong>
+            </p>
+            <p>
+              ADDIE te dice: "En la fase de Diseño, necesitas tener listos tus objetivos". Es una instrucción de gerente de obra que no define el voltaje real que va en los cables. No tiene una secuencia de eventos cognitivos (atención, activación previa, práctica, retroalimentación). Eso es terreno exclusivo de los modelos tácticos de la siguiente sección.
+            </p>
+          </div>
+        </article>
+
+        <!-- CAPÍTULO 4 -->
+        <article id="cap4" class="section-block scroll-mt-24 space-y-6">
+          <div class="flex items-center space-x-2">
+            <span class="w-1.5 h-1.5 bg-brand-red rounded-full"></span>
+            <span class="font-mono text-xs uppercase tracking-widest text-brand-red font-semibold">Capítulo 4</span>
+          </div>
+          
+          <h2 class="font-sans font-bold text-3xl sm:text-4xl text-gray-900 tracking-tight">El Vehículo: Cómo se mueve el aprendizaje por dentro</h2>
+          
+          <div class="text-gray-700 space-y-4">
+            <p>
+              <strong>Esta capa se llama Táctica.</strong> Responde a cómo se construye y dinamiza la actividad por dentro, no cómo se gestiona el proyecto.
+            </p>
+            <p>
+              Aquí es donde la mayoría de los cursos de autoaprendizaje fallan estrepitosamente. Tienes tu proceso ordenado, pero necesitas mover al estudiante del punto de la "información" al punto de "ahora sé aplicarlo".
+            </p>
+            <p>
+              Eso lo resuelven <strong>Gagné, Merrill y Keller.</strong> Son modelos tácticos.
+            </p>
+
+            <!-- EXPLORADOR INTERACTIVO DE MODELOS TÁCTICOS -->
+            <div class="my-8 bg-brand-creamDark rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
+              <div class="bg-brand-dark px-6 py-4 flex items-center justify-between">
+                <span class="text-xs font-mono uppercase tracking-widest text-white font-bold">Explorador Táctico Interactivo</span>
+                <span class="text-[10px] font-mono text-brand-red uppercase bg-brand-red/15 px-2 py-0.5 rounded">Clic para alternar</span>
+              </div>
+              <div class="grid grid-cols-3 border-b border-gray-200 font-mono text-xs sm:text-sm text-center">
+                <button onclick="switchTacticsTab('gagne')" id="btn-t-gagne" class="py-3 px-2 border-r border-gray-200 bg-white font-bold text-brand-red smooth-transition">Gagné</button>
+                <button onclick="switchTacticsTab('merrill')" id="btn-t-merrill" class="py-3 px-2 border-r border-gray-200 bg-gray-50 text-gray-500 smooth-transition">Merrill</button>
+                <button onclick="switchTacticsTab('keller')" id="btn-t-keller" class="py-3 px-2 bg-gray-50 text-gray-500 smooth-transition">Keller</button>
+              </div>
+              
+              <div class="p-6 bg-white min-h-[220px]">
+                <!-- Tab GAGNE -->
+                <div id="tab-t-gagne" class="space-y-3">
+                  <h5 class="font-bold text-lg text-brand-dark">9 Eventos de Instrucción</h5>
+                  <p class="text-sm text-gray-600">Gagné propone un viaje cognitivo interno que va desde captar la atención inicial hasta favorecer la retención y transferencia.</p>
+                  <ol class="text-xs text-gray-600 grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1 pt-2 list-decimal list-inside font-mono">
+                    <li>Captar la atención</li>
+                    <li>Informar el objetivo</li>
+                    <li>Estimular el recuerdo</li>
+                    <li>Presentar el contenido</li>
+                    <li>Proveer guía clara</li>
+                    <li>Provocar el desempeño</li>
+                    <li>Dar retroalimentación</li>
+                    <li>Evaluar desempeño</li>
+                    <li>Favorecer la transferencia</li>
+                  </ol>
+                </div>
+                <!-- Tab MERRILL -->
+                <div id="tab-t-merrill" class="space-y-3 hidden">
+                  <h5 class="font-bold text-lg text-brand-dark">Principios Fundamentales</h5>
+                  <p class="text-sm text-gray-600">Merrill insiste en un aspecto fundamental: si no hay un problema o reto real que resolver, no existe un aprendizaje real y significativo.</p>
+                  <ul class="text-xs text-gray-600 space-y-1.5 pt-2 font-mono">
+                    <li><strong class="text-brand-red">✓ Activación:</strong> Conexión explícita con saberes previos.</li>
+                    <li><strong class="text-brand-red">✓ Demostración:</strong> Mostrar la habilidad en un contexto concreto.</li>
+                    <li><strong class="text-brand-red">✓ Aplicación:</strong> Practicar guiado con retroalimentación inmediata.</li>
+                    <li><strong class="text-brand-red">✓ Integración:</strong> Incorporar el nuevo saber a la vida cotidiana de trabajo.</li>
+                  </ul>
+                </div>
+                <!-- Tab KELLER -->
+                <div id="tab-t-keller" class="space-y-3 hidden">
+                  <h5 class="font-bold text-lg text-brand-dark">Modelo ARCS de Motivación</h5>
+                  <p class="text-sm text-gray-600">Puedes estructurar de forma brillante tu contenido, pero perderás al alumno si dejas de lado los factores motivacionales:</p>
+                  <ul class="text-xs text-gray-600 space-y-1.5 pt-2 font-mono">
+                    <li><strong class="text-brand-red">A - Atención:</strong> Estimulación perceptual y conceptual constante.</li>
+                    <li><strong class="text-brand-red">R - Relevancia:</strong> Responder "¿por qué esto me importa a mí?".</li>
+                    <li><strong class="text-brand-red">C - Confianza:</strong> Ayudar a creer en sus habilidades mediante logros progresivos.</li>
+                    <li><strong class="text-brand-red">S - Satisfacción:</strong> Sentimiento de justicia y utilidad en la práctica.</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <p>
+              ¿Te das cuenta? Estos marcos explican cómo construir los flujos de la actividad paso a paso, pero carecen de una métrica para definir qué tan profundo es el aprendizaje. Para eso necesitamos el mapa de destinos de la siguiente sección.
+            </p>
+          </div>
+        </article>
+
+        <!-- CAPÍTULO 5 -->
+        <article id="cap5" class="section-block scroll-mt-24 space-y-6">
+          <div class="flex items-center space-x-2">
+            <span class="w-1.5 h-1.5 bg-brand-red rounded-full"></span>
+            <span class="font-mono text-xs uppercase tracking-widest text-brand-red font-semibold">Capítulo 5</span>
+          </div>
+          
+          <h2 class="font-sans font-bold text-3xl sm:text-4xl text-gray-900 tracking-tight">El Mapa de Destinos: A dónde vas y por qué</h2>
+          
+          <div class="text-gray-700 space-y-4">
+            <p>
+              <strong>Esta capa se llama Taxonomía.</strong> No gestiona el proyecto ni construye la secuencia; clasifica el nivel de profundidad cognitiva al que el objetivo de aprendizaje debe apuntar.
+            </p>
+            <p>
+              <strong>Bloom no es una simple lista de verbos</strong> para rellenar plantillas de diseño. Es un modelo jerárquico que establece el destino exacto del viaje.
+            </p>
+
+            <!-- ESQUEMA TAXONOMÍA DE BLOOM -->
+            <div class="my-8 bg-brand-creamDark/60 border border-gray-250 rounded-2xl p-6 relative overflow-hidden">
+              <h4 class="font-mono text-xs uppercase tracking-widest text-brand-red font-bold mb-6">La Jerarquía de Profundidad Cognitiva</h4>
+              
+              <div class="space-y-2 flex flex-col">
+                <!-- Crear -->
+                <div class="bg-brand-red text-white py-2 px-4 rounded-lg flex justify-between items-center text-sm font-mono transform hover:translate-x-2 transition-transform duration-300">
+                  <span>6. Crear</span>
+                  <span class="text-xs opacity-75">Complejidad Máxima</span>
+                </div>
+                <!-- Evaluar -->
+                <div class="bg-brand-red/90 text-white py-2 px-4 rounded-lg flex justify-between items-center text-sm font-mono transform hover:translate-x-2 transition-transform duration-300">
+                  <span>5. Evaluar</span>
+                  <span class="text-xs opacity-75">Toma de decisiones</span>
+                </div>
+                <!-- Analizar -->
+                <div class="bg-brand-red/80 text-white py-2 px-4 rounded-lg flex justify-between items-center text-sm font-mono transform hover:translate-x-2 transition-transform duration-300">
+                  <span>4. Analizar</span>
+                  <span class="text-xs opacity-75">Deconstrucción de patrones</span>
+                </div>
+                <!-- Aplicar -->
+                <div class="bg-brand-red/70 text-white py-2 px-4 rounded-lg flex justify-between items-center text-sm font-mono transform hover:translate-x-2 transition-transform duration-300">
+                  <span>3. Aplicar</span>
+                  <span class="text-xs opacity-75">Poner en práctica real</span>
+                </div>
+                <!-- Comprender -->
+                <div class="bg-brand-red/60 text-white py-2 px-4 rounded-lg flex justify-between items-center text-sm font-mono transform hover:translate-x-2 transition-transform duration-300">
+                  <span>2. Comprender</span>
+                  <span class="text-xs opacity-75">Asimilación y explicación</span>
+                </div>
+                <!-- Recordar -->
+                <div class="bg-brand-red/50 text-white py-2 px-4 rounded-lg flex justify-between items-center text-sm font-mono transform hover:translate-x-2 transition-transform duration-300">
+                  <span>1. Recordar</span>
+                  <span class="text-xs opacity-75">Retención simple</span>
+                </div>
+              </div>
+            </div>
+
+            <p>
+              Volviendo a la empresa de logística: el curso pedía, implícitamente, que los empleados de atención al cliente <strong class="text-brand-red">recordaran</strong> el protocolo de tres pasos. Sin embargo, el negocio requería que lo <strong class="text-brand-red">aplicaran</strong> o incluso lo <strong class="text-brand-red">evaluaran</strong> en condiciones de alta presión emocional. Esa brecha cognitiva es el origen de la ineficacia del entrenamiento.
+            </p>
+          </div>
+        </article>
+
+        <!-- CAPÍTULO 6 -->
+        <article id="cap6" class="section-block scroll-mt-24 space-y-6">
+          <div class="flex items-center space-x-2">
+            <span class="w-1.5 h-1.5 bg-brand-red rounded-full"></span>
+            <span class="font-mono text-xs uppercase tracking-widest text-brand-red font-semibold">Capítulo 6</span>
+          </div>
+          
+          <h2 class="font-sans font-bold text-3xl sm:text-4xl text-gray-900 tracking-tight">Las Señales de Tránsito</h2>
+          
+          <div class="text-gray-700 space-y-4">
+            <p>
+              Imagina otro escenario: un curso con los objetivos perfectamente calibrados según Bloom, guiado en su planificación mediante ADDIE y con dinámicas robustas inspiradas en Gagné. Aun así, el 40% de los usuarios abandona el contenido en la misma diapositiva.
+            </p>
+            <p>
+              Al revisar esa sección encuentras: un párrafo extenso de texto estático, un audio leyendo textualmente esas mismas palabras y una animación brillante que se reproduce de fondo sin justificación alguna. El cerebro colapsa.
+            </p>
+            <p>
+              <strong>Esta capa se llama Neurociencia Cognitiva.</strong> Gobierna la capacidad de almacenamiento y asimilación de la memoria humana. Sus referentes obligados son <strong>John Sweller</strong> (Teoría de la Carga Cognitiva) y <strong>Richard Mayer</strong> (Principios de Aprendizaje Multimedia).
+            </p>
+
+            <!-- INFOGRAFÍA TEORÍA DE LA CARGA COGNITIVA -->
+            <div class="my-8 p-6 bg-brand-creamDark border border-gray-200 rounded-2xl">
+              <h4 class="font-mono text-xs uppercase tracking-widest text-brand-red font-bold mb-4">Distribución del Esfuerzo Mental</h4>
+              <div class="space-y-4">
+                <div>
+                  <div class="flex justify-between text-xs font-mono mb-1">
+                    <span class="text-gray-700 font-bold">1. Carga Intrínseca (Dificultad inherente)</span>
+                    <span class="text-gray-500">Se administra</span>
+                  </div>
+                  <div class="w-full bg-gray-200 h-3 rounded-full overflow-hidden">
+                    <div class="bg-brand-blue h-full" style="width: 35%"></div>
+                  </div>
+                </div>
+                <div>
+                  <div class="flex justify-between text-xs font-mono mb-1">
+                    <span class="text-brand-red font-bold">2. Carga Extrínseca (Ruido de diseño o distracciones)</span>
+                    <span class="text-brand-red">¡Eliminar por completo!</span>
+                  </div>
+                  <div class="w-full bg-gray-200 h-3 rounded-full overflow-hidden">
+                    <div class="bg-brand-red h-full" style="width: 50%"></div>
+                  </div>
+                </div>
+                <div>
+                  <div class="flex justify-between text-xs font-mono mb-1">
+                    <span class="text-gray-700 font-bold">3. Carga Relevante / Germana (Procesamiento efectivo)</span>
+                    <span class="text-gray-500">Se promueve</span>
+                  </div>
+                  <div class="w-full bg-gray-200 h-3 rounded-full overflow-hidden">
+                    <div class="bg-green-500 h-full" style="width: 15%"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <p class="font-bold">Principios fundamentales de Mayer que debes aplicar:</p>
+            <ul class="space-y-2 list-disc list-inside text-sm font-mono bg-white p-5 rounded-xl border border-gray-100">
+              <li><strong class="text-brand-red">Redundancia:</strong> No dupliques el texto visual leyéndolo idéntico en audio.</li>
+              <li><strong class="text-brand-red">Contigüidad:</strong> Ubica las descripciones textuales cerca de los diagramas que ilustran.</li>
+              <li><strong class="text-brand-red">Coherencia:</strong> Remueve toda música de fondo o elemento decorativo trivial.</li>
+            </ul>
+          </div>
+        </article>
+
+        <!-- CAPÍTULO 7 -->
+        <article id="cap7" class="section-block scroll-mt-24 space-y-6">
+          <div class="flex items-center space-x-2">
+            <span class="w-1.5 h-1.5 bg-brand-red rounded-full"></span>
+            <span class="font-mono text-xs uppercase tracking-widest text-brand-red font-semibold">Capítulo 7</span>
+          </div>
+          
+          <h2 class="font-sans font-bold text-3xl sm:text-4xl text-gray-900 tracking-tight">Las Cuatro Capas en Acción</h2>
+          
+          <p class="text-gray-700">
+            Analicemos un caso práctico real: capacitación en ventas sobre la metodología de calificación de prospectos <strong class="text-brand-red">BANT</strong> (Presupuesto, Autoridad, Necesidad, Tiempos). Comparemos el flujo según cuántas capas se involucran.
+          </p>
+
+          <!-- INTERFAZ INTERACTIVA ANTES / DESPUÉS -->
+          <div class="my-8 border border-gray-200 rounded-2xl overflow-hidden shadow-sm">
+            <div class="grid grid-cols-2 text-center font-mono text-sm border-b border-gray-200">
+              <button onclick="switchBantView('old')" id="btn-old-bant" class="py-4 bg-white text-brand-red font-bold border-r border-gray-200 smooth-transition">
+                Versión 2 Capas (Insuficiente)
+              </button>
+              <button onclick="switchBantView('new')" id="btn-new-bant" class="py-4 bg-gray-50 text-gray-500 smooth-transition">
+                Versión 4 Capas (Integrado)
+              </button>
+            </div>
+
+            <!-- ANTES -->
+            <div id="view-old-bant" class="p-6 sm:p-8 bg-white space-y-4">
+              <span class="font-mono text-xs uppercase tracking-widest text-orange-600 bg-orange-100 px-2 py-1 rounded">Enfoque Tradicional</span>
+              <h4 class="font-bold text-xl text-gray-900">Enfoque Informativo</h4>
+              <p class="text-sm text-gray-600 leading-relaxed">
+                El diseño se limita a la gestión general (ADDIE) y a una taxonomía mal interpretada ("el vendedor recordará el acrónimo BANT"). El desarrollo resultante son diapositivas teóricas explicando los componentes y un examen de opción múltiple al final.
+              </p>
+              <div class="bg-orange-50 border border-orange-200 p-4 rounded-xl text-xs font-mono text-orange-800">
+                ⚠️ El vendedor memoriza qué es BANT, pero falla al intentar aplicarlo durante una llamada telefónica real.
+              </div>
+            </div>
+
+            <!-- DESPUÉS -->
+            <div id="view-new-bant" class="p-6 sm:p-8 bg-white space-y-6 hidden">
+              <span class="font-mono text-xs uppercase tracking-widest text-green-600 bg-green-100 px-2 py-1 rounded">Enfoque Integral</span>
+              <h4 class="font-bold text-xl text-gray-900">Enfoque de Desempeño Profundo</h4>
+              
+              <div class="space-y-4 text-sm text-gray-600 leading-relaxed">
+                <p>
+                  Alineamos todas las capas del mapa:
+                </p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-mono">
+                  <div class="p-3 bg-brand-creamDark rounded-lg border border-gray-150">
+                    <span class="text-brand-red font-bold block mb-1">Taxonomía calibrada:</span>
+                    El vendedor debe <span class="underline">evaluar</span> la viabilidad de una cuenta de manera activa.
+                  </div>
+                  <div class="p-3 bg-brand-creamDark rounded-lg border border-gray-150">
+                    <span class="text-brand-red font-bold block mb-1">Táctica en acción:</span>
+                    Se arranca directamente con la transcripción de una llamada real donde se debe calificar al prospecto de inmediato.
+                  </div>
+                </div>
+                <p>
+                  No se lee teoría primero; se desafía el criterio intuitivo del alumno. El acrónimo BANT aparece posteriormente para conceptualizar y organizar la experiencia. Las pantallas se mantienen libres de menús o voz redundante para mantener la carga cognitiva controlada al mínimo.
+                </p>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- CONCLUSIÓN -->
+        <article id="conclusion" class="section-block scroll-mt-24 space-y-6">
+          <div class="flex items-center space-x-2">
+            <span class="w-1.5 h-1.5 bg-brand-red rounded-full"></span>
+            <span class="font-mono text-xs uppercase tracking-widest text-brand-red font-semibold">Tu Nuevo Dibujo</span>
+          </div>
+          
+          <h2 class="font-sans font-bold text-3xl sm:text-4xl text-gray-900 tracking-tight">El mapa que ahora sí puedes dibujar</h2>
+          
+          <div class="text-gray-700 space-y-4">
+            <p>
+              La próxima vez que abras un curso nuevo, antes de escribir el primer objetivo en el procesador, hazte estas cuatro preguntas de control en el siguiente orden estricto:
+            </p>
+            
+            <div class="space-y-3 pl-4 border-l-2 border-brand-red my-8">
+              <p class="text-sm font-mono"><strong class="text-brand-red">1.</strong> ¿Cuál es la brecha real que el Análisis revela?</p>
+              <p class="text-sm font-mono"><strong class="text-brand-red">2.</strong> ¿A qué nivel de Bloom necesita llegar el alumno para cerrarla?</p>
+              <p class="text-sm font-mono"><strong class="text-brand-red">3.</strong> ¿Qué actividad puede mover al alumno hasta ese nivel de desempeño?</p>
+              <p class="text-sm font-mono"><strong class="text-brand-red">4.</strong> ¿Qué le estoy pidiendo a su memoria de trabajo en cada pantalla?</p>
+            </div>
+
+            <p>
+              Si las cuatro interrogantes cuentan con respuestas claras antes de abrir tu software de autoría, lo que construyas después tendrá altas probabilidades de generar un cambio real y medible.
+            </p>
+          </div>
+        </article>
+
+        <!-- MATRIZ DE MODELOS DE DISEÑO (TABLA INTERACTIVA) -->
+        <section class="scroll-mt-24 pt-12 border-t border-gray-200">
+          <h3 class="font-sans font-bold text-2xl text-gray-950 mb-4">Matriz de Referencia Rápida</h3>
+          <p class="text-sm text-gray-600 mb-6 font-mono">
+            Usa el cuadro de búsqueda para filtrar modelos (ej: ADDIE, Sweller, Bloom, etc.)
+          </p>
+
+          <div class="mb-4">
+            <input type="text" id="modelSearch" onkeyup="filterModelsTable()" placeholder="Buscar modelo o capa..." class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-brand-red focus:border-transparent outline-none font-mono text-sm">
+          </div>
+
+          <div class="overflow-x-auto bg-white rounded-xl border border-gray-200 shadow-sm">
+            <table class="w-full text-left text-sm" id="modelsTable">
+              <thead class="bg-brand-dark text-white font-mono text-xs uppercase tracking-wider">
+                <tr>
+                  <th class="px-6 py-4">Capa</th>
+                  <th class="px-6 py-4">Modelos Clave</th>
+                  <th class="px-6 py-4">Se encarga de</th>
+                  <th class="px-6 py-4">Qué resuelve</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-150 font-mono text-xs text-gray-700">
+                <tr>
+                  <td class="px-6 py-4 font-bold text-brand-red">GPS (Gestión)</td>
+                  <td class="px-6 py-4">ADDIE, Dick y Carey, Kemp, ASSURE</td>
+                  <td class="px-6 py-4">Gestión integral</td>
+                  <td class="px-6 py-4">Organiza fases, entregables y secuencias del proyecto completo.</td>
+                </tr>
+                <tr>
+                  <td class="px-6 py-4 font-bold text-brand-red">Vehículo (Táctica)</td>
+                  <td class="px-6 py-4">Gagné, Merrill, Keller, Jonassen</td>
+                  <td class="px-6 py-4">Táctica educativa</td>
+                  <td class="px-6 py-4">Construye la actividad por dentro y promueve la asimilación del contenido.</td>
+                </tr>
+                <tr>
+                  <td class="px-6 py-4 font-bold text-brand-red">Mapa (Taxonomía)</td>
+                  <td class="px-6 py-4">Bloom, Mager</td>
+                  <td class="px-6 py-4">Profundidad cognitiva</td>
+                  <td class="px-6 py-4">Clasifica a qué nivel jerárquico debe operar el estudiante.</td>
+                </tr>
+                <tr>
+                  <td class="px-6 py-4 font-bold text-brand-red">Señales (Neurociencia)</td>
+                  <td class="px-6 py-4">Sweller, Mayer, Paivio, Bjork</td>
+                  <td class="px-6 py-4">Carga cognitiva</td>
+                  <td class="px-6 py-4">Determina la cantidad de esfuerzo mental y su organización multimedia.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="bg-brand-dark text-white py-12 mt-24 border-t-4 border-brand-red">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center">
+      <div class="text-center md:text-left mb-6 md:mb-0">
+        <h4 class="font-sans font-extrabold tracking-tight text-xl text-white">RECONSTRUYENDO EL DISEÑO</h4>
+        <p class="text-xs font-mono text-gray-400 mt-1">El arte de estructurar experiencias reales de aprendizaje</p>
+      </div>
+      <div class="flex space-x-6 text-sm font-mono">
+        <a href="#intro" class="hover:text-brand-red transition-colors">Volver al inicio</a>
+        <span class="text-gray-600">|</span>
+        <p class="text-gray-400">© 2026</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- SCRIPTING JS PARA INTERACTIVIDAD -->
+  <script>
+    // Inicialización de Variables Globales
+    let currentScale = 1.0;
+
+    // Scroll Suave al contenido
+    function scrollToContent() {
+      document.getElementById('mainContent').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Cambiar Tamaño de Fuente
+    function changeFontSize(direction) {
+      const readingArea = document.getElementById('readable-area');
+      currentScale += direction * 0.1;
+      // Límites lógicos para no romper el layout
+      if (currentScale < 0.8) currentScale = 0.8;
+      if (currentScale > 1.4) currentScale = 1.4;
+      
+      readingArea.style.fontSize = `${currentScale * 1.125}rem`;
+      document.getElementById('fontSizeLabel').innerText = `${Math.round(currentScale * 100)}%`;
+    }
+
+    // Configurar Temas de Fondo para Lectura Relajada
+    function setTheme(theme) {
+      const body = document.body;
+      const header = document.getElementById('mainHeader');
+      
+      // Remover clases anteriores
+      body.classList.remove('theme-warm', 'theme-light', 'theme-dark');
+      
+      if (theme === 'warm') {
+        body.classList.add('theme-warm');
+        header.style.backgroundColor = 'rgba(253, 251, 247, 0.9)';
+      } else if (theme === 'light') {
+        body.classList.add('theme-light');
+        header.style.backgroundColor = 'rgba(255, 255, 255, 0.9)';
+      } else if (theme === 'dark') {
+        body.classList.add('theme-dark');
+        header.style.backgroundColor = 'rgba(15, 23, 42, 0.9)';
+      }
+    }
+
+    // Alternar Pestañas del Explorador Táctico
+    function switchTacticsTab(tab) {
+      const tabs = ['gagne', 'merrill', 'keller'];
+      tabs.forEach(t => {
+        const btn = document.getElementById(`btn-t-${t}`);
+        const content = document.getElementById(`tab-t-${t}`);
+        
+        if (t === tab) {
+          btn.classList.add('font-bold', 'text-brand-red', 'bg-white');
+          btn.classList.remove('text-gray-500', 'bg-gray-50');
+          content.classList.remove('hidden');
+        } else {
+          btn.classList.remove('font-bold', 'text-brand-red', 'bg-white');
+          btn.classList.add('text-gray-500', 'bg-gray-50');
+          content.classList.add('hidden');
+        }
+      });
+
+      // Contexto dinámico en sidebar según pestaña seleccionada
+      const contextText = document.getElementById('asideContext');
+      if (tab === 'gagne') {
+        contextText.innerText = "Gagné se enfoca en el viaje cronológico de cómo asimilamos estímulos de principio a fin.";
+      } else if (tab === 'merrill') {
+        contextText.innerText = "Para Merrill, no hay atajos: si no se resuelve un problema activo, el estudiante no aprende.";
+      } else if (tab === 'keller') {
+        contextText.innerText = "Keller nos recuerda que los adultos distraídos requieren que su atención y confianza sean cuidadas.";
+      }
+    }
+
+    // Alternar Comparación Interactiva de Caso BANT
+    function switchBantView(view) {
+      const btnOld = document.getElementById('btn-old-bant');
+      const btnNew = document.getElementById('btn-new-bant');
+      const viewOld = document.getElementById('view-old-bant');
+      const viewNew = document.getElementById('view-new-bant');
+
+      if (view === 'old') {
+        btnOld.classList.add('font-bold', 'text-brand-red', 'bg-white');
+        btnOld.classList.remove('text-gray-500', 'bg-gray-50');
+        btnNew.classList.remove('font-bold', 'text-brand-red', 'bg-white');
+        btnNew.classList.add('text-gray-500', 'bg-gray-50');
+        
+        viewOld.classList.remove('hidden');
+        viewNew.classList.add('hidden');
+      } else {
+        btnNew.classList.add('font-bold', 'text-brand-red', 'bg-white');
+        btnNew.classList.remove('text-gray-500', 'bg-gray-50');
+        btnOld.classList.remove('font-bold', 'text-brand-red', 'bg-white');
+        btnOld.classList.add('text-gray-500', 'bg-gray-50');
+        
+        viewNew.classList.remove('hidden');
+        viewOld.classList.add('hidden');
+      }
+    }
+
+    // Buscador y Filtrado en la Tabla de Modelos
+    function filterModelsTable() {
+      const input = document.getElementById('modelSearch');
+      const filter = input.value.toUpperCase();
+      const table = document.getElementById('modelsTable');
+      const trs = table.getElementsByTagName('tr');
+
+      for (let i = 1; i < trs.length; i++) {
+        const tds = trs[i].getElementsByTagName('td');
+        let matches = false;
+        for (let j = 0; j < tds.length; j++) {
+          if (tds[j]) {
+            const txtValue = tds[j].textContent || tds[j].innerText;
+            if (txtValue.toUpperCase().indexOf(filter) > -1) {
+              matches = true;
+              break;
+            }
+          }
+        }
+        trs[i].style.display = matches ? "" : "none";
+      }
+    }
+
+    // Barra de Progreso Dinámica según Scroll del usuario
+    window.addEventListener('scroll', () => {
+      const winScroll = document.documentElement.scrollTop || document.body.scrollTop;
+      const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+      const scrolled = (winScroll / height) * 100;
+      
+      const roundedProgress = Math.round(scrolled);
+      document.getElementById('readingProgress').style.width = `${roundedProgress}%`;
+      document.getElementById('progressPercentage').innerText = `${roundedProgress}%`;
+
+      // Activar indicador dinámico en el menú lateral
+      const sections = document.querySelectorAll('.section-block');
+      const navLinks = document.querySelectorAll('.nav-link');
+      
+      let currentSectionId = '';
+      sections.forEach(sec => {
+        const secTop = sec.offsetTop;
+        if (winScroll >= secTop - 150) {
+          currentSectionId = sec.getAttribute('id');
+        }
+      });
+
+      navLinks.forEach(link => {
+        link.classList.remove('text-brand-red', 'font-bold');
+        link.classList.add('text-gray-500');
+        if (link.getAttribute('href') === `#${currentSectionId}`) {
+          link.classList.add('text-brand-red', 'font-bold');
+          link.classList.remove('text-gray-500');
+        }
+      });
+    });
+  </script>
+</body>
+</html>
